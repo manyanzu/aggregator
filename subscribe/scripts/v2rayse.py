@@ -109,11 +109,11 @@ def last_history(url: str, interval: int = 12) -> datetime:
 
 
 def list_files(base: str, date: str, maxsize: int, last: datetime) -> list[str]:
-    marker, truncated = "", True
+    marker, truncated, count = "", True, 0
     base, date = utils.trim(base), utils.trim(date)
     prefix, files = f"{base}?prefix={date}/", []
 
-    while truncated:
+    while truncated and count < 3:
         url = prefix if not marker else f"{prefix}&marker={marker}"
         try:
             content = utils.http_get(url=url)
@@ -153,6 +153,7 @@ def list_files(base: str, date: str, maxsize: int, last: datetime) -> list[str]:
 
                 files.append(f"{base}/{name}")
         except:
+            count += 1
             logger.error(f"[V2RaySE] list files error, date: {date}, marker: {marker}")
 
     return files
